@@ -1,0 +1,54 @@
+name: Azure Login and Storage Account Creation
+
+on:
+  workflow_dispatch:
+    inputs:
+      storage-account-name:
+        description: 'The name of the Azure Storage account to be created'
+        required: true
+      resource-group:
+        description: 'The name of the Azure Resource Group'
+        required: true
+      location:
+        description: 'The Azure location for the storage account'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Azure login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Create Resource Group
+        run: |
+          az group create --name ${{ github.event.inputs.resource-group }} --location ${{ github.event.inputs.location }}
+
+      - name: Create Storage Account
+        run: |
+          az storage account create \
+            --name ${{ github.event.inputs.storage-account-name }} \
+            --resource-group ${{ github.event.inputs.resource-group }} \
+            --location ${{ github.event.inputs.location }} \
+            --sku Standard_LRS \
+            --kind StorageV2
+
+      - name: Azure CLI script
+        uses: azure/cli@v2
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az account show
