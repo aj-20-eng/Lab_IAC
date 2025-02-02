@@ -1,14 +1,12 @@
-# File: .github/workflows/workflow.yml
-
 name: Azure Login
 
 on:
   workflow_dispatch:
 
-
 permissions:
   id-token: write
   contents: read
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
@@ -17,6 +15,7 @@ jobs:
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
