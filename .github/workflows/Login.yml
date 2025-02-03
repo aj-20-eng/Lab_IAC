@@ -2,6 +2,10 @@ name: Azure Login
 
 on:
   workflow_dispatch:
+    inputs:
+      resource_group:
+          description: 'The name of the resource group '
+          required: true
 
 permissions:
   id-token: write
@@ -30,7 +34,9 @@ jobs:
           inlineScript: |
             az account show
             # List all resource groups
-            az group list --output table
+            #az group list --output table
         
             # Create a new resource group
-            az group create --name MyResourceGroup --location eastus
+            #az group create --name MyResourceGroup --location eastus
+           
+            az group delete --name ${{ github.event.inputs.resource_group }} --yes --no-wait
