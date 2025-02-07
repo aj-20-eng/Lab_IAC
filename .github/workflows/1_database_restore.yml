@@ -15,7 +15,9 @@ on:
         description: "New Restored Server Name"
         required: true
         default: "labaitest-restored"
-
+permissions:
+  id-token: write
+  contents: read
 jobs:
   restore_pgsql:
     runs-on: ubuntu-latest
