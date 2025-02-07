@@ -31,29 +31,16 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
 
-      - name: Fetch Latest Backup Time
-        id: get_backup_time
-        run: |
-          LATEST_RESTORE_TIME=$(az postgres flexible-server show \
-            --resource-group ${{ github.event.inputs.resource_group }} \
-            --name ${{ github.event.inputs.source_server }} \
-            --query "earliestRestoreDate" --output tsv)
-
-          if [[ -z "$LATEST_RESTORE_TIME" ]]; then
-            echo "❌ ERROR: Unable to retrieve the latest backup time. Exiting..."
-            exit 1
-          fi
-
-          echo "Latest Backup Time: $LATEST_RESTORE_TIME"
-          echo "RESTORE_TIME=$LATEST_RESTORE_TIME" >> $GITHUB_ENV
-
       - name: Restore PostgreSQL Server
         run: |
+          echo "Restoring ${{ github.event.inputs.source_server }} to new server ${{ github.event.inputs.new_server }}..."
+          
           az postgres flexible-server restore \
             --resource-group ${{ github.event.inputs.resource_group }} \
             --name ${{ github.event.inputs.new_server }} \
-            --source-server ${{ github.event.inputs.source_server }} \
-            --restore-time "$RESTORE_TIME"
+            --source-server ${{ github.event.inputs.source_server }}
+
+          echo "✅ PostgreSQL Restore Completed Successfully!"
 
       - name: Completion Message
         run: echo "✅ PostgreSQL Restore Completed Successfully!"
