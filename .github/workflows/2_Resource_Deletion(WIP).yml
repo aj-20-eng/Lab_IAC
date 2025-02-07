@@ -1,0 +1,52 @@
+name: Delete Azure PostgreSQL
+
+on:
+  workflow_dispatch:  # Allows manual trigger
+    inputs:
+      pgsql_resource_id:
+        description: "Azure PostgreSQL Server Resource ID"
+        required: true
+
+permissions:
+  id-token: write  # Required for OIDC authentication
+  contents: read
+
+jobs:
+  delete_pgsql:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          client-secret: ${{ secrets.AZURE_CLIENT_SECRET }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Extract Subscription ID
+        run: |
+          SUBSCRIPTION_ID=$(az account show --query "id" --output tsv)
+          echo "✅ Subscription ID: $SUBSCRIPTION_ID"
+          echo "SUBSCRIPTION_ID=$SUBSCRIPTION_ID" >> $GITHUB_ENV
+
+      - name: Extract Resource Group & Server Name
+        run: |
+          RESOURCE_GROUP=$(echo "${{ github.event.inputs.pgsql_resource_id }}" | awk -F'/' '{print $5}')
+          SERVER_NAME=$(echo "${{ github.event.inputs.pgsql_resource_id }}" | awk -F'/' '{print $NF}')
+          
+          echo "✅ Resource Group: $RESOURCE_GROUP"
+          echo "✅ Server Name: $SERVER_NAME"
+          
+          echo "RESOURCE_GROUP=$RESOURCE_GROUP" >> $GITHUB_ENV
+          echo "SERVER_NAME=$SERVER_NAME" >> $GITHUB_ENV
+
+      - name: Delete PostgreSQL Server
+        run: |
+          echo "⚠️ Deleting PostgreSQL Server: $SERVER_NAME in Resource Group: $RESOURCE_GROUP..."
+          
+          az postgres flexible-server delete \
+            --name "$SERVER_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --yes --no-wait
+          
+          echo "✅ PostgreSQL Server Deletion Initiated!"
