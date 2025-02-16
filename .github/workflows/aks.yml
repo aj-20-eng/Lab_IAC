@@ -1,4 +1,4 @@
-name: Deploy Azure Infrastructure
+name: Deploy AKS
 
 on:
   push:
@@ -24,10 +24,10 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Deploy Infrastructure Stack
+      - name: Deploy AKS with Bicep
         run: |
-          az deployment stack group create \
-            --name infra-stack \
+          az deployment group create \
+            --name aks-deployment \
             --resource-group ${{ secrets.AZURE_RESOURCE_GROUP }} \
             --template-file bicep/main.bicep \
             --parameters @parameters.json
