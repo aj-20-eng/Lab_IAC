@@ -1,12 +1,11 @@
-param resourceGroup string
-param clusterName string = 'myAKSCluster'
-param dnsPrefix string = 'aks-dns'
-
-module aks './aks.bicep' = {
-  name: 'aksDeployment'
-  params: {
-    clusterName: clusterName
-    dnsPrefix: dnsPrefix
-    resourceGroup: resourceGroup
+resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+  name: '8789amitlab'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Premium_LRS'
+  }
+  properties: {
+    accessTier: 'Hot'
   }
 }
