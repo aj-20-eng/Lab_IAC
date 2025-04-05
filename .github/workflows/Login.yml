@@ -1,19 +1,22 @@
-name: Azure Login
+name: Create Azure Backup Vault
 
 on:
   workflow_dispatch:
     inputs:
       resource_group:
-          description: 'The name of the resource group '
-          required: true
+        description: 'The name of the resource group'
+        required: true
+      vault_name:
+        description: 'The name of the backup vault'
+        required: true
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  build-and-deploy:
-    name: Login
+  create-backup-vault:
+    name: Create Backup Vault
     runs-on: ubuntu-latest
 
     steps:
@@ -28,16 +31,22 @@ jobs:
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: Azure CLI script
-        uses: azure/cli@v2
-        with:
-          azcliversion: latest
-          inlineScript: |
-            az account show
-            # List all resource groups
-            #az group list --output table
-        
-            # Create a new resource group
-            az group create --name ${{ github.event.inputs.resource_group }} --location eastus
-           
-            #az group delete --name ${{ github.event.inputs.resource_group }} --yes --no-wait
+      - name: Install dataprotection extension
+        run: |
+          az config set extension.use_dynamic_install=yes_without_prompt
+          az extension add --name dataprotection
+
+      - name: Get location of the resource group
+        id: rg-location
+        run: |
+          LOCATION=$(az group show --name ${{ github.event.inputs.resource_group }} --query location -o tsv)
+          echo "location=$LOCATION" >> $GITHUB_OUTPUT
+
+      - name: Create Backup Vault
+        run: |
+          az dataprotection backup-vault create \
+            -g ${{ github.event.inputs.resource_group }} \
+            --vault-name ${{ github.event.inputs.vault_name }} \
+            -l ${{ steps.rg-location.outputs.location }} \
+            --type SystemAssigned \
+            --storage-settings datastore-type="VaultStore" type="LocallyRedundant"
