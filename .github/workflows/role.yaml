@@ -44,7 +44,7 @@ jobs:
 
             echo "Getting Vault MSI..."
             VAULT_MSI=$(az dataprotection backup-vault show \
-              --name $VAULT_NAME \
+              --vault-name $VAULT_NAME  \
               --resource-group $RG_NAME \
               --query identity.principalId -o tsv)
 
