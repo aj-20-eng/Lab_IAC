@@ -31,5 +31,4 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       - name: List all resource groups
         run: |
-          az login --identity
           az group list --output table
