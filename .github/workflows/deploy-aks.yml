@@ -7,6 +7,10 @@ on:
         description: 'Azure Resource Group Name'
         required: true
         default: 'myResourceGroup'
+        
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
