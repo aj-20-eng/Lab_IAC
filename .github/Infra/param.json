@@ -1,0 +1,12 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "parameters": {
+      "aksClusterName": { "value": "myAksCluster" },
+      "dnsPrefix": { "value": "myaksdns" },
+      "agentCount": { "value": 2 },
+      "agentVMSize": { "value": "Standard_DS2_v2" },
+      "vnetName": { "value": "aksVnet" },
+      "subnetName": { "value": "aksSubnet" }
+    }
+  }
+  
