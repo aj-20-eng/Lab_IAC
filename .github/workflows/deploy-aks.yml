@@ -39,5 +39,4 @@ jobs:
           --resource-group ${{ github.event.inputs.resourceGroup }} \
           --template-file ./Infra/main.bicep \
           --parameters @./Infra/param.json \
-          --location eastus \
           --confirm-with-what-if false
