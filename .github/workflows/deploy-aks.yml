@@ -1,0 +1,46 @@
+name: Deploy AKS via Bicep and Deployment Stack
+
+on:
+  workflow_dispatch:
+    inputs:
+      resourceGroup:
+        description: 'Azure Resource Group Name'
+        required: true
+        default: 'myResourceGroup'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Ensure Resource Group Exists
+      run: |
+        az group create \
+          --name ${{ github.event.inputs.resourceGroup }} \
+          --location eastus
+
+    - name: Install Deployment Stack Extension
+      run: |
+        az config set extension.use_dynamic_install=yes_without_prompt
+        az extension add --name deploymentstack
+
+    - name: Deploy Bicep using Deployment Stack
+      run: |
+        az deploymentstack create \
+          --name aks-stack \
+          --resource-group ${{ github.event.inputs.resourceGroup }} \
+          --template-file ./Infra/main.bicep \
+          --parameters @./Infra/param.json \
+          --location eastus \
+          --deny-settings-mode none \
+          --delete-resources-on-delete false
