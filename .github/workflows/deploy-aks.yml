@@ -64,13 +64,11 @@ jobs:
         fi
 
         - name: Deploy AKS via Bicep
-        uses: azure/arm-deploy@v2
-         with:
-        scope: resourcegroup
-        deploymentName: aks-${{ github.event.inputs.environment }}-${{ github.run_number }}
-        resourceGroupName: ${{ github.event.inputs.resource_group }}
-        template: Infra/deploy/AKS/main.bicep
-        parameters: >-
-          environment=${{ github.event.inputs.environment }}
-          location=${{ env.LOCATION }}
-        failOnStdErr: false
+           uses: azure/arm-deploy@v2
+            with:
+            scope: resourcegroup
+            deploymentName: aks-${{ github.event.inputs.environment }}-${{ github.run_number }}
+            resourceGroupName: ${{ github.event.inputs.resource_group }}
+            template: Infra/deploy/AKS/main.bicep
+            parameters: environment=${{ github.event.inputs.environment }} location=${{ env.LOCATION }}
+            failOnStdErr: false
