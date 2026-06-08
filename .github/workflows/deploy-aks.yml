@@ -27,48 +27,42 @@ env:
 jobs:
   deploy-aks:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Azure Login
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-    - name: List available Resource Groups
-      run: |
-        echo "📋 Available Resource Groups in subscription:"
-        az group list --query "[].{Name:name, Location:location, State:properties.provisioningState}" -o table
+      - name: List Resource Groups
+        run: |
+          echo "Available Resource Groups:"
+          az group list --query "[].{Name:name, Location:location}" -o table
 
-    - name: Validate or Create Resource Group
-      run: |
-        RG_NAME="${{ github.event.inputs.resource_group }}"
-        LOCATION="${{ env.LOCATION }}"
+      - name: Validate or Create Resource Group
+        run: |
+          RG_NAME="${{ github.event.inputs.resource_group }}"
+          LOCATION="${{ env.LOCATION }}"
+          echo "Checking if RG '$RG_NAME' exists..."
+          RG_EXISTS=$(az group exists --name "$RG_NAME")
+          if [ "$RG_EXISTS" = "true" ]; then
+            echo "Resource Group '$RG_NAME' found - proceeding"
+          else
+            echo "Resource Group '$RG_NAME' not found - creating..."
+            az group create --name "$RG_NAME" --location "$LOCATION"
+            echo "Resource Group '$RG_NAME' created!"
+          fi
 
-        echo "🔍 Checking if RG '$RG_NAME' exists..."
-        RG_EXISTS=$(az group exists --name "$RG_NAME")
-
-        if [ "$RG_EXISTS" = "true" ]; then
-          echo "✅ Resource Group '$RG_NAME' found — proceeding with deployment"
-        else
-          echo "⚠️  Resource Group '$RG_NAME' not found"
-          echo "🚀 Creating Resource Group '$RG_NAME' in '$LOCATION'..."
-          az group create \
-            --name "$RG_NAME" \
-            --location "$LOCATION"
-          echo "✅ Resource Group '$RG_NAME' created!"
-        fi
-
-        - name: Deploy AKS via Bicep
-           uses: azure/arm-deploy@v2
-            with:
-            scope: resourcegroup
-            deploymentName: aks-${{ github.event.inputs.environment }}-${{ github.run_number }}
-            resourceGroupName: ${{ github.event.inputs.resource_group }}
-            template: Infra/deploy/AKS/main.bicep
-            parameters: environment=${{ github.event.inputs.environment }} location=${{ env.LOCATION }}
-            failOnStdErr: false
+      - name: Deploy AKS via Bicep
+        uses: azure/arm-deploy@v2
+        with:
+          scope: resourcegroup
+          deploymentName: aks-${{ github.event.inputs.environment }}-${{ github.run_number }}
+          resourceGroupName: ${{ github.event.inputs.resource_group }}
+          template: Infra/deploy/AKS/main.bicep
+          parameters: environment=${{ github.event.inputs.environment }} location=${{ env.LOCATION }}
+          failOnStdErr: false
