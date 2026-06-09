@@ -60,4 +60,10 @@ jobs:
             --template-file "Infra/deploy/AKS/main.bicep" \
             --parameters environment="${{ github.event.inputs.environment }}" \
             --parameters location="${{ env.LOCATION }}" \
-            --name "aks-${{ github.event.inputs.environment }}-${{ github.run_number }}"
+            --name "aks-${{ github.event.inputs.environment }}-${{ github.run_number }}" \
+            --verbose 2>&1 || \
+          az deployment operation group list \
+            --resource-group "${{ github.event.inputs.resource_group }}" \
+            --name "aks-${{ github.event.inputs.environment }}-${{ github.run_number }}" \
+            --query "[?properties.provisioningState=='Failed'].properties.statusMessage" \
+            -o json

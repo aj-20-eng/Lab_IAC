@@ -1,7 +1,6 @@
 // =========================================
 // AKS Reusable Module
 // Sirf AKS cluster — no monitoring, no alerts
-// Usage: module aksModule 'modules/aks/aks.bicep' = { ... }
 // =========================================
 
 @description('AKS cluster name')
@@ -62,9 +61,6 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
         maxPods: 110
         enableAutoScaling: false
         enableNodePublicIP: false
-        upgradeSettings: {
-          maxUnavailable: '0'
-        }
       }
     ]
     networkProfile: {
@@ -77,14 +73,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-01-01' = {
 }
 
 // ── Outputs ──
-@description('Cluster name')
 output clusterName string = aksCluster.name
-
-@description('Cluster resource ID')
 output clusterId string = aksCluster.id
-
-@description('Cluster FQDN')
 output fqdn string = aksCluster.properties.fqdn
-
-@description('Kubelet identity object ID — ACR pull ke liye')
 output kubeletIdentityObjectId string = aksCluster.properties.identityProfile.kubeletidentity.objectId
