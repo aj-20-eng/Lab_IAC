@@ -51,7 +51,7 @@ jobs:
           fi
       - name: CheckBicep
         run: |
-           ls -la Infra/Deploy/AKS/
+           ls -la Infra/deploy/AKS/
 
       - name: Deploy AKS
         run: |
