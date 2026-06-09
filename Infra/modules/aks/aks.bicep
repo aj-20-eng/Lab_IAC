@@ -13,7 +13,7 @@ param location string = resourceGroup().location
 param dnsPrefix string = clusterName
 
 @description('Kubernetes version')
-param kubernetesVersion string = '1.29'
+param kubernetesVersion string = '1.34'
 
 @description('VM size — quota ke hisaab se')
 @allowed([
