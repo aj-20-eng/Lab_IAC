@@ -44,7 +44,7 @@ jobs:
            echo "---repo root---"
            ls -la
            echo "---Target Folder---"
-           ls -la Infra/deploy/VNet/ || echo "Directory not found"
+           ls -la Infra/deploy/network/ || echo "Directory not found"
 
       - name: Validate or Create Resource Group
         run: |
@@ -59,13 +59,13 @@ jobs:
           fi
 
       - name: Check Bicep
-        run: ls -la Infra/deploy/VNet/
+        run: ls -la Infra/deploy/network
 
       - name: Deploy VNet
         run: |
           az deployment group create \
             --resource-group "${{ github.event.inputs.resource_group }}" \
-            --template-file "Infra/deploy/VNet/main.bicep" \
+            --template-file "Infra/deploy/network/main.bicepparam" \
             --parameters environment="${{ github.event.inputs.environment }}" \
             --parameters location="${{ env.LOCATION }}" \
             --name "vnet-${{ github.event.inputs.environment }}-${{ github.run_number }}" \
