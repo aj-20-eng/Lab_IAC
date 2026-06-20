@@ -31,4 +31,4 @@ jobs:
           az group list --output table
       - name: show current subscription
         run: |
-          az account show --output table
+          az account list --all --output table
