@@ -44,7 +44,7 @@ jobs:
            echo "---repo root---"
            ls -la
            echo "---Target Folder---"
-           ls -la Infra/deploy/network/ || echo "Directory not found"
+           ls -la Infra/modules/network/ || echo "Directory not found"
 
       - name: Validate or Create Resource Group
         run: |
@@ -65,7 +65,7 @@ jobs:
         run: |
           az deployment group create \
             --resource-group "${{ github.event.inputs.resource_group }}" \
-            --template-file "Infra/deploy/network/main.bicepparam" \
+            --template-file "Infra/modules/network/main.bicepparam" \
             --parameters environment="${{ github.event.inputs.environment }}" \
             --parameters location="${{ env.LOCATION }}" \
             --name "vnet-${{ github.event.inputs.environment }}-${{ github.run_number }}" \
