@@ -5,10 +5,7 @@ on:
     inputs:
       resource_group:
         description: 'The name of the resource group'
-        required: true
-      vault_name:
-        description: 'The name of the backup vault'
-        required: true
+        required: false
 
 permissions:
   id-token: write
@@ -32,3 +29,6 @@ jobs:
       - name: List all resource groups
         run: |
           az group list --output table
+      - name: show current subscription
+        run: |
+          az account show --output table
