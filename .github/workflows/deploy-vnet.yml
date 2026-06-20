@@ -59,15 +59,13 @@ jobs:
           fi
 
       - name: Check Bicep
-        run: ls -la Infra/deploy/network
+        run: ls -la Infra/modules/network
 
       - name: Deploy VNet
         run: |
           az deployment group create \
             --resource-group "${{ github.event.inputs.resource_group }}" \
-            --template-file "Infra/modules/network/main.bicepparam" \
-            --parameters environment="${{ github.event.inputs.environment }}" \
-            --parameters location="${{ env.LOCATION }}" \
+            --parameters "Infra/modules/network/main.bicepparam" \
             --name "vnet-${{ github.event.inputs.environment }}-${{ github.run_number }}" \
             --verbose 2>&1 || \
           az deployment operation group list \
